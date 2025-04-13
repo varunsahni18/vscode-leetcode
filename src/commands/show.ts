@@ -191,6 +191,13 @@ async function showProblemInternal(node: IProblem): Promise<void> {
         const needTranslation: boolean = settingUtils.shouldUseEndpointTranslation();
 
         await leetCodeExecutor.showProblem(node, language, finalPath, descriptionConfig.showInComment, needTranslation);
+        // Add C++ headers and main function if the language is C++
+        if (language === "cpp") {
+            const cppHeaders = `#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <map>\n#include <set>\n#include <queue>\n#include <stack>\n#include <deque>\n#include <unordered_map>\n#include <unordered_set>\n#include <cmath>\n#include <numeric>\n#include <functional>\n#include <iomanip>\n#include <sstream>\n#include <bitset>\n#include <climits>\n#include <cstring>\n#include <cassert>\nusing namespace std;\n\n`;
+            const mainFunction = `int main() {\n    Solution sol;\n    // Add your test cases here\n    cout << "Test cases go here" << endl;\n    return 0;\n}\n`;
+            const fileContent = yield vscode.workspace.fs.readFile(vscode.Uri.file(finalPath));
+            yield vscode.workspace.fs.writeFile(vscode.Uri.file(finalPath), Buffer.from(cppHeaders + fileContent.toString() + "\n" + mainFunction));
+        }
         const promises: any[] = [
             vscode.window.showTextDocument(vscode.Uri.file(finalPath), {
                 preview: false,
